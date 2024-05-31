@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using TFRegisterLoginJWT.Data;
 using TFRegisterLoginJWT.Interfaces;
@@ -22,9 +23,9 @@ namespace TFRegisterLoginJWT
 			options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 			builder.Services.AddScoped<IAuthService, AuthService>();
+			builder.Services.AddScoped<IUserService, UserService>();
 
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddEndpointsApiExplorer();
 
 			builder.Services.AddSwaggerGen(c =>
@@ -43,7 +44,7 @@ namespace TFRegisterLoginJWT
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(options =>
 
-					options.TokenValidationParameters = new TokenValidationParameters
+					options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
 					{
 						ValidateIssuerSigningKey = true,
 						IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8
@@ -51,6 +52,7 @@ namespace TFRegisterLoginJWT
 						ValidateIssuer = false,
 						ValidateAudience = false
 					});
+
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
@@ -61,6 +63,8 @@ namespace TFRegisterLoginJWT
 			}
 
 			app.UseHttpsRedirection();
+
+			app.UseAuthentication();
 
 			app.UseAuthorization();
 
